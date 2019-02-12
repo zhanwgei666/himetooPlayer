@@ -38,8 +38,6 @@ public class MainActivity extends Activity {
         fl_main_content = (FrameLayout) findViewById(R.id.fl_main_content);
         rg_bottom_tag = (RadioGroup) findViewById(R.id.rg_bottom_tag);
 
-
-
         basePagers = new ArrayList<>();
         basePagers.add(new VideoPager(this));//添加本地视频页面  -0
         basePagers.add(new AudioPager(this));//添加本地音乐页面  -1
