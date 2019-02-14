@@ -1,4 +1,4 @@
-package com.example.fxplus.himetooplayer.activity;
+package com.example.fxplus.himetooplayer.activity.activity;
 
 import android.app.Activity;
 import android.content.Intent;

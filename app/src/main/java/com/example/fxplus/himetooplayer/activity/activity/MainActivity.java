@@ -1,4 +1,4 @@
-package com.example.fxplus.himetooplayer.activity;
+package com.example.fxplus.himetooplayer.activity.activity;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -95,8 +95,9 @@ public class MainActivity extends Activity {
     //根据位置得到对应的页面
     private BasePager getBasePager() {
         BasePager basePager = basePagers.get(position);
-        if (basePager != null){
+        if (basePager != null && !basePager.isInitData){
             basePager.initData();//联网请求或者绑定数据
+            basePager.isInitData = true;
         }
         return basePager;
     }

@@ -9,6 +9,7 @@ public abstract class BasePager {
     public final Context context;
 
     public View rootview;
+    public boolean isInitData;
 
     public BasePager(Context context){
         this.context = context;
