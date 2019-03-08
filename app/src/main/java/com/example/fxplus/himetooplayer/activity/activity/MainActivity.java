@@ -5,11 +5,14 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.example.fxplus.himetooplayer.R;
 import com.example.fxplus.himetooplayer.activity.base.BasePager;
@@ -49,7 +52,7 @@ public class MainActivity extends Activity {
         rg_bottom_tag.check(R.id.rb_video);//默认选中首页
     }
 
-    class MyOnCheckedChangeListener implements RadioGroup.OnCheckedChangeListener {
+     class MyOnCheckedChangeListener implements RadioGroup.OnCheckedChangeListener {
 
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -100,5 +103,31 @@ public class MainActivity extends Activity {
             basePager.isInitData = true;
         }
         return basePager;
+    }
+
+    /**
+     * 是否已经退出
+     */
+    private boolean isExit = false;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode ==KeyEvent.KEYCODE_BACK){
+            if(position != 0){//不是第一页面
+                position = 0;
+                rg_bottom_tag.check(R.id.rb_video);//首页
+                return true;
+            }else  if(!isExit){
+                isExit = true;
+                Toast.makeText(MainActivity.this,"再按一次推出",Toast.LENGTH_SHORT).show();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isExit  = false;
+                    }
+                },2000);
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

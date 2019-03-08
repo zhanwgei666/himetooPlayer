@@ -2,12 +2,33 @@ package com.example.fxplus.himetooplayer.activity.domain;
 
 //作用：代表一个视频和音频
 
-public class MediaItem {
+import java.io.Serializable;
+
+public class MediaItem implements Serializable {
     private String name;
     private long duration;
     private long size;
     private String data;
     private String artist;
+    private String desc;
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    private String imageUrl;
 
     public String getName() {
         return name;
@@ -57,6 +78,8 @@ public class MediaItem {
                 ", size=" + size +
                 ", data='" + data + '\'' +
                 ", artist='" + artist + '\'' +
+                ", desc='" + desc + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }

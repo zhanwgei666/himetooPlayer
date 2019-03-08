@@ -2,12 +2,14 @@ package com.example.fxplus.himetooplayer.activity.view;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.fxplus.himetooplayer.R;
+import com.example.fxplus.himetooplayer.activity.activity.SearchActivity;
 
 //自定义标题栏
 
@@ -57,7 +59,9 @@ public class TitleBar extends LinearLayout implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.tv_search:
-                Toast.makeText(context,"搜索",Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context,"搜索",Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, SearchActivity.class);
+                context.startActivity(intent);
                 break;
             case R.id.rl_game:
                 Toast.makeText(context,"游戏",Toast.LENGTH_SHORT).show();

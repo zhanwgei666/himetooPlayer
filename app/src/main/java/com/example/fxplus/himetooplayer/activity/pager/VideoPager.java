@@ -1,30 +1,31 @@
 package com.example.fxplus.himetooplayer.activity.pager;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.text.format.Formatter;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.os.Handler;
 
 import com.example.fxplus.himetooplayer.R;
+import com.example.fxplus.himetooplayer.activity.activity.SystemVideoPlayer;
+import com.example.fxplus.himetooplayer.activity.adapter.VideoPagerAdapetrAdapter;
 import com.example.fxplus.himetooplayer.activity.base.BasePager;
 import com.example.fxplus.himetooplayer.activity.domain.MediaItem;
 import com.example.fxplus.himetooplayer.activity.util.LogUtil;
-import com.example.fxplus.himetooplayer.activity.util.Utils;
 
 import java.util.ArrayList;
 
@@ -34,17 +35,16 @@ public class VideoPager extends BasePager {
     private ListView listView;
     private TextView tv_nomedia;
     private ProgressBar pb_loading;
-    private Utils utils;
-    private VideoPagerAdagerAdapter videoPagerAdagerAdapter;
+    private com.example.fxplus.himetooplayer.activity.adapter.VideoPagerAdapetrAdapter VideoPagerAdapetrAdapter;
 
     //数据集合
     private ArrayList<MediaItem> mediaItems;
 
     public VideoPager(Context context) {
         super(context);
-        utils = new Utils();
     }
 
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -52,14 +52,15 @@ public class VideoPager extends BasePager {
             if (mediaItems != null && mediaItems.size() > 0) {
                 //有数据
                 //设置适配器
-                videoPagerAdagerAdapter = new VideoPagerAdagerAdapter();
-                listView.setAdapter(videoPagerAdagerAdapter);
+                VideoPagerAdapetrAdapter = new VideoPagerAdapetrAdapter(context,mediaItems,true);
+                listView.setAdapter(VideoPagerAdapetrAdapter);
                 //把文本隐藏
                 tv_nomedia.setVisibility(View.GONE);
             } else {
                 //没有数据
                 //文本显示
                 tv_nomedia.setVisibility(View.VISIBLE);
+                tv_nomedia.setText("没有发现音频...");
             }
             //ProgressBar隐藏
             pb_loading.setVisibility(View.GONE);
@@ -74,8 +75,34 @@ public class VideoPager extends BasePager {
         listView = (ListView) view.findViewById(R.id.listView);
         tv_nomedia = (TextView) view.findViewById(R.id.tv_nomedia);
         pb_loading = (ProgressBar) view.findViewById(R.id.pb_loading);
-
+        //设置ListView的Item的点击事件
+        listView.setOnItemClickListener(new MyOnItemClickListener());
         return view;
+    }
+
+    class MyOnItemClickListener implements AdapterView.OnItemClickListener{
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+           MediaItem mediaItem = mediaItems.get(position);
+
+           //1、调起系统的所有的播放器-隐试意图
+//            Intent intent = new Intent();
+//            intent.setDataAndType(Uri.parse(mediaItem.getArtist()),"video/*");
+//            context.startActivities(new  Intent[]{intent});
+
+            //2、调用自己的播放器--
+//            Intent intent = new Intent(context, SystemVideoPlayer.class);
+//            intent.setDataAndType(Uri.parse(mediaItem.getData()),"video/*");
+//            context.startActivity(intent);
+            //3、传递列表数据 --对象 --序列化
+            Intent intent = new Intent(context, SystemVideoPlayer.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videolist",mediaItems);
+            intent.putExtras(bundle);
+            intent.putExtra("position",position);
+            context.startActivity(intent);
+        }
     }
 
     @Override
@@ -102,14 +129,12 @@ public class VideoPager extends BasePager {
     //遍历SD卡，后缀名
     //从内容提供者里面获取视频
     private void getDataFromLocal() {
-        mediaItems = new ArrayList<>();
         new Thread() {
             @Override
             public void run() {
                 super.run();
-
+                mediaItems = new ArrayList<>();
                 ContentResolver resolver = context.getContentResolver();//获取内容提供者
-
                 Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 String[] objs = {
                         MediaStore.Video.Media.DISPLAY_NAME,//视频文件在SD卡的名称
@@ -147,54 +172,4 @@ public class VideoPager extends BasePager {
             }
         }.start();
     }
-
-    class VideoPagerAdagerAdapter extends BaseAdapter{
-
-        @Override
-        public int getCount() {
-            return 0;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHoder viewHoder;
-            if (convertView != null){
-                convertView = View.inflate(context,R.layout.item_video_pager,null);
-                viewHoder = new ViewHoder();
-                viewHoder.iv_icon = (ImageView) convertView.findViewById(R.id.iv_icon);
-                viewHoder.tv_size = (TextView) convertView.findViewById(R.id.tv_size);
-                viewHoder.tv_name = (TextView) convertView.findViewById(R.id.tv_name);
-                viewHoder.tv_time = (TextView) convertView.findViewById(R.id.tv_time);
-                convertView.setTag(viewHoder);
-            }else {
-                viewHoder = (ViewHoder) convertView.getTag();
-            }
-
-            //根据position得到列表中对应位置的数据
-            MediaItem mediaItem = mediaItems.get(position);
-            viewHoder.tv_name.setText(mediaItem.getName());
-            viewHoder.tv_size.setText(Formatter.formatFileSize(context,mediaItem.getSize()));
-            viewHoder.tv_time.setText(utils.stringForTime((int) mediaItem.getDuration()));
-
-
-            return convertView;
-        }
-    }
-    static class ViewHoder{
-        ImageView iv_icon;
-        TextView tv_name;
-        TextView tv_size;
-        TextView tv_time;
-    }
-
 }
